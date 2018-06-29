@@ -17,13 +17,9 @@ const (
 
 var (
 	taskStateMutex sync.Mutex
+	taskPool       sync.Pool
 	taskChan     = make(chan Task, runtime.NumCPU())
 	taskState    = make(map[string]string)
-)
-
-const (
-	NoExpiration time.Duration = -1
-	DefaultExpiration time.Duration = 0
 )
 
 type Task struct {
@@ -42,12 +38,23 @@ func NewTask(param  map[string]interface{}, factory []FacFunc, d time.Duration) 
 		expiration = time.Now().Add(d).UnixNano()
 	}
 
-	return Task{
-		param,
-		factory,
-		getUUID(20),
-		expiration,
+	t := taskPool.Get()
+	if t == nil {
+		return Task{
+			param,
+			factory,
+			getUUID(20),
+			expiration,
+		}
+	} else {
+		task := t.(Task)
+		task.Param = param
+		task.Factory = factory
+		task.UUID = getUUID(20)
+		task.Expiration = expiration
+		return task
 	}
+
 }
 
 func AddTask(task Task) string {
@@ -91,11 +98,14 @@ func taskReceiver() {
 			}
 			if err != nil {
 				UpdateTaskState(taskUUID, StateError)
+				taskPool.Put(task)
 			} else {
 				UpdateTaskState(taskUUID, StateCompleted)
+				taskPool.Put(task)
 			}
 		} else {
 			UpdateTaskState(taskUUID, StateOverdue)
+			taskPool.Put(task)
 		}
 	}
 }
