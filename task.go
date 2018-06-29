@@ -49,12 +49,12 @@ func NewTask(param  map[string]interface{}, factory []FacFunc, d time.Duration) 
 			expiration,
 		}
 	} else {
-		task := t.(Task)
-		task.Param = param
-		task.Factory = factory
-		task.UUID = getUUID(20)
-		task.Expiration = expiration
-		return &task
+		task := t.(*Task)
+		(*task).Param = param
+		(*task).Factory = factory
+		(*task).UUID = getUUID(20)
+		(*task).Expiration = expiration
+		return task
 	}
 
 }
