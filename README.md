@@ -15,16 +15,16 @@ import (
 	"runtime"
 	"fmt"
 	"time"
-	"testing"
+	task "github.com/chenhg5/go-task"
 )
 
 func main() {
 
 	// init
-	TaskReceiveInit(runtime.NumCPU())
+	task.TaskReceiveInit(runtime.NumCPU())
 
 	// add task
-	AddTask(NewTask(
+	task.AddTask(task.NewTask(
 		map[string]interface{}{},  // parameter
 		[]makeFunc{func(uuid string, param map[string]interface{}) (string, error) {
 			fmt.Println(uuid)
