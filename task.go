@@ -18,7 +18,7 @@ const (
 var (
 	taskStateMutex sync.Mutex
 	taskPool       sync.Pool
-	taskChan     = make(chan Task, runtime.NumCPU())
+	taskChan     = make(chan *Task, runtime.NumCPU())
 	taskState    = make(map[string]string)
 )
 
@@ -31,16 +31,18 @@ type Task struct {
 
 type FacFunc func(string, map[string]interface{}) (string, error)
 
-func NewTask(param  map[string]interface{}, factory []FacFunc, d time.Duration) Task {
+func NewTask(param  map[string]interface{}, factory []FacFunc, d time.Duration) *Task {
 
 	var expiration int64
 	if d > 0 {
 		expiration = time.Now().Add(d).UnixNano()
+	} else {
+		expiration = -1
 	}
 
 	t := taskPool.Get()
 	if t == nil {
-		return Task{
+		return &Task{
 			param,
 			factory,
 			getUUID(20),
@@ -52,16 +54,16 @@ func NewTask(param  map[string]interface{}, factory []FacFunc, d time.Duration) 
 		task.Factory = factory
 		task.UUID = getUUID(20)
 		task.Expiration = expiration
-		return task
+		return &task
 	}
 
 }
 
-func AddTask(task Task) string {
+func AddTask(task *Task) string {
 	go func() {
 		taskChan <- task
 	}()
-	uuid := task.UUID
+	uuid := (*task).UUID
 	UpdateTaskState(uuid, StateWaiting)
 	return uuid
 }
@@ -92,9 +94,9 @@ func taskReceiver() {
 	for {
 		task := <-taskChan
 
-		if (task.Expiration > 0 && time.Now().UnixNano() < task.Expiration) || task.Expiration < 0 {
-			for _, f := range task.Factory {
-				taskUUID, err = f(task.UUID, task.Param)
+		if ((*task).Expiration > 0 && time.Now().UnixNano() < (*task).Expiration) || (*task).Expiration < 0 {
+			for _, f := range (*task).Factory {
+				taskUUID, err = f((*task).UUID, (*task).Param)
 			}
 			if err != nil {
 				UpdateTaskState(taskUUID, StateError)
