@@ -21,7 +21,7 @@ import (
 func main() {
 
 	// init
-	task.TaskReceiveInit(runtime.NumCPU())
+	task.InitTaskReceiver(runtime.NumCPU())
 
 	// add task
 	task.AddTask(task.NewTask(

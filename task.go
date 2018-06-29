@@ -81,7 +81,7 @@ func taskReceiver() {
 	}
 }
 
-func TaskReceiveInit(num int) {
+func InitTaskReceiver(num int) {
 	for i := 0; i < num; i++ {
 		go taskReceiver()
 	}
