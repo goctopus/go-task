@@ -14,11 +14,11 @@ const (
 	StateNone      = "none"
 )
 
-var taskStateMutex sync.Mutex
-
-var taskChan = make(chan Task, runtime.NumCPU())
-
-var taskState = make(map[string]string)
+var (
+	taskStateMutex sync.Mutex
+	taskChan     = make(chan Task, runtime.NumCPU())
+	taskState    = make(map[string]string)
+)
 
 type Task struct {
 	Param   map[string]interface{}
@@ -52,7 +52,7 @@ func UpdateTaskState(uuid, state string) {
 	taskState[uuid] = state
 }
 
-func LoadTaskState(uuid string) (state string) {
+func GetTaskState(uuid string) (state string) {
 	taskStateMutex.Lock()
 	defer taskStateMutex.Unlock()
 
@@ -66,17 +66,17 @@ func LoadTaskState(uuid string) (state string) {
 }
 
 func taskReceiver() {
+	var taskUUID string
+	var err error
 	for {
 		task := <-taskChan
-		var curTaskHash string
-		var err error
 		for _, f := range task.Factory {
-			curTaskHash, err = f(task.UUID, task.Param)
+			taskUUID, err = f(task.UUID, task.Param)
 		}
 		if err != nil {
-			UpdateTaskState(curTaskHash, StateError)
+			UpdateTaskState(taskUUID, StateError)
 		} else {
-			UpdateTaskState(curTaskHash, StateCompleted)
+			UpdateTaskState(taskUUID, StateCompleted)
 		}
 	}
 }
