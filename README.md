@@ -38,3 +38,10 @@ func main() {
 	time.Sleep(time.Second * 5)
 }
 ```
+
+## todo
+
+- [ ] get the number of statistical state
+- [ ] api for putting an end to a task
+- [ ] api for clearing task list
+- [ ] add task delay list
