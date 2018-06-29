@@ -15,7 +15,7 @@ import (
 	"runtime"
 	"fmt"
 	"time"
-	task "github.com/chenhg5/go-task"
+	"github.com/chenhg5/go-task"
 )
 
 func main() {
