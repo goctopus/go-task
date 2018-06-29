@@ -21,7 +21,7 @@ func testBuild(t *testing.T) {
 			fmt.Println(uuid)
 			fmt.Println(param)
 			return "ok", nil
-		}}),
+		}}, -1),
 	)
 
 	time.Sleep(time.Second * 5)

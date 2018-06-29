@@ -12,6 +12,7 @@ const (
 	StateCompleted = "completed"
 	StateError     = "failed"
 	StateNone      = "none"
+	StateOverdue   = "overdue"
 )
 
 var (
@@ -20,19 +21,32 @@ var (
 	taskState    = make(map[string]string)
 )
 
+const (
+	NoExpiration time.Duration = -1
+	DefaultExpiration time.Duration = 0
+)
+
 type Task struct {
 	Param   map[string]interface{}
 	Factory []FacFunc
 	UUID    string
+	Expiration int64
 }
 
 type FacFunc func(string, map[string]interface{}) (string, error)
 
-func NewTask(param  map[string]interface{}, factory []FacFunc) Task {
+func NewTask(param  map[string]interface{}, factory []FacFunc, d time.Duration) Task {
+
+	var expiration int64
+	if d > 0 {
+		expiration = time.Now().Add(d).UnixNano()
+	}
+
 	return Task{
 		param,
 		factory,
 		getUUID(20),
+		expiration,
 	}
 }
 
@@ -70,13 +84,18 @@ func taskReceiver() {
 	var err error
 	for {
 		task := <-taskChan
-		for _, f := range task.Factory {
-			taskUUID, err = f(task.UUID, task.Param)
-		}
-		if err != nil {
-			UpdateTaskState(taskUUID, StateError)
+
+		if (task.Expiration > 0 && time.Now().UnixNano() < task.Expiration) || task.Expiration < 0 {
+			for _, f := range task.Factory {
+				taskUUID, err = f(task.UUID, task.Param)
+			}
+			if err != nil {
+				UpdateTaskState(taskUUID, StateError)
+			} else {
+				UpdateTaskState(taskUUID, StateCompleted)
+			}
 		} else {
-			UpdateTaskState(taskUUID, StateCompleted)
+			UpdateTaskState(taskUUID, StateOverdue)
 		}
 	}
 }

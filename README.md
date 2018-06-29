@@ -23,7 +23,7 @@ func main() {
 	// init
 	task.InitTaskReceiver(runtime.NumCPU())
 
-	// add task
+	// add task: parameter, taskList, expiration
 	task.AddTask(task.NewTask(
 		map[string]interface{}{
             "paramA" : "value",
@@ -32,7 +32,7 @@ func main() {
 			fmt.Println(uuid)
 			fmt.Println(param)
 			return "ok", nil
-		}}),
+		}}, -1),
 	)
 
 	time.Sleep(time.Second * 5)
