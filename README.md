@@ -26,7 +26,7 @@ func main() {
 	// add task
 	task.AddTask(task.NewTask(
 		map[string]interface{}{},  // parameter
-		[]makeFunc{func(uuid string, param map[string]interface{}) (string, error) {
+		[]task.FacFunc{func(uuid string, param map[string]interface{}) (string, error) {
 			fmt.Println(uuid)
 			fmt.Println(param)
 			return "ok", nil

@@ -22,13 +22,13 @@ var taskState = make(map[string]string)
 
 type Task struct {
 	Param   map[string]interface{}
-	Factory []makeFunc
+	Factory []FacFunc
 	UUID    string
 }
 
-type makeFunc func(string, map[string]interface{}) (string, error)
+type FacFunc func(string, map[string]interface{}) (string, error)
 
-func NewTask(param  map[string]interface{}, factory []makeFunc) Task {
+func NewTask(param  map[string]interface{}, factory []FacFunc) Task {
 	return Task{
 		param,
 		factory,
