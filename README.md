@@ -1,6 +1,6 @@
 # go-task
 
-simple go asynchronous task generator tool
+simple asynchronous task generator tool writed by go
 
 ## install
 
