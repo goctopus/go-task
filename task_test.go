@@ -10,7 +10,7 @@ import (
 func testBuild(t *testing.T) {
 
 	// init
-	TaskReceiveInit(runtime.NumCPU())
+	InitTaskReceiver(runtime.NumCPU())
 
 	// add task
 	AddTask(NewTask(
