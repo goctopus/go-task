@@ -1,10 +1,10 @@
 package task
 
 import (
-	"sync"
-	"runtime"
-	"time"
 	"math/rand"
+	"runtime"
+	"sync"
+	"time"
 )
 
 const (
@@ -18,20 +18,20 @@ const (
 var (
 	taskStateMutex sync.Mutex
 	taskPool       sync.Pool
-	taskChan     = make(chan *Task, runtime.NumCPU())
-	taskState    = make(map[string]string)
+	taskChan       = make(chan *Task, runtime.NumCPU())
+	taskState      = make(map[string]string)
 )
 
 type Task struct {
-	Param   map[string]interface{}
-	Factory []FacFunc
-	UUID    string
+	Param      map[string]interface{}
+	Factory    []FacFunc
+	UUID       string
 	Expiration int64
 }
 
 type FacFunc func(string, map[string]interface{}) (string, error)
 
-func NewTask(param  map[string]interface{}, factory []FacFunc, d time.Duration) *Task {
+func NewTask(param map[string]interface{}, factory []FacFunc, d time.Duration) *Task {
 
 	var expiration int64
 	if d > 0 {
@@ -124,15 +124,16 @@ func getUUID(length int64) string {
 		"H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}
 	ele, _ = random(ele)
 	uuid := ""
+	rand.Seed(time.Now().UnixNano())
 	var i int64
 	for i = 0; i < length; i++ {
-		rand.Seed(time.Now().Unix() + i)
 		uuid += ele[rand.Intn(59)]
 	}
 	return uuid
 }
 
 func random(strings []string) ([]string, error) {
+	rand.Seed(time.Now().UnixNano())
 	for i := len(strings) - 1; i > 0; i-- {
 		num := rand.Intn(i + 1)
 		strings[i], strings[num] = strings[num], strings[i]

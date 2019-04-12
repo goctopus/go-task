@@ -1,13 +1,13 @@
 package task
 
 import (
-	"runtime"
 	"fmt"
-	"time"
+	"runtime"
 	"testing"
+	"time"
 )
 
-func testBuild(t *testing.T) {
+func TestRunTask(t *testing.T) {
 
 	// init
 	InitTaskReceiver(runtime.NumCPU())
@@ -15,8 +15,8 @@ func testBuild(t *testing.T) {
 	// add task
 	AddTask(NewTask(
 		map[string]interface{}{
-			"paramA" : "value",
-		},  // parameter
+			"paramA": "value",
+		}, // parameter
 		[]FacFunc{func(uuid string, param map[string]interface{}) (string, error) {
 			fmt.Println(uuid)
 			fmt.Println(param)
